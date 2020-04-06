@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="4dp"
+    android:layout_marginBottom="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="4dp">
+
+        <ImageView
+            android:id="@+id/weathericon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:padding="2dp"/>
+
+        <TextView
+            android:id="@+id/weathertitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/weathericon"
+            android:text="title"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/weatherdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="date"
+            android:textSize="15sp"
+            android:layout_below="@+id/weathertitle"
+            android:layout_toEndOf="@+id/weathericon"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:id="@+id/mintemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/weatherdate"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@+id/weathericon"
+            android:text="min"
+            android:textSize="15sp"
+            android:textColor="@android:color/holo_red_light"/>
+
+        <TextView
+            android:id="@+id/avgtemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/weathertitle"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="21dp"
+            android:layout_toEndOf="@+id/mintemp"
+            android:text="avg"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/maxtemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/weathertitle"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="21dp"
+            android:layout_toEndOf="@+id/avgtemp"
+            android:text="max"
+            android:textSize="15sp"
+            android:textColor="@android:color/holo_green_light"/>
+
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

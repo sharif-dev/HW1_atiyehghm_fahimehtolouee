@@ -1,9 +1,12 @@
 package com.atiyehandfahimeh.hw1;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -25,10 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WeatherDisplayActivity extends AppCompatActivity {
-
-    ListAdapter adapter;
-    ListView weatherView ;
-    List dayList = new ArrayList();
+    private RecyclerView weatherRecyclerView;
+    private RecyclerView.Adapter weatherAdapter;
+    private RecyclerView.LayoutManager wetherLayoutManager;
 
 
     @Override
@@ -36,23 +38,14 @@ public class WeatherDisplayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather_display);
 
-        weatherView = findViewById(R.id.weatherlist);
-        dayList.add("sat");
-        dayList.add("sun");
-        dayList.add("mon");
-        dayList.add("tue");
-        dayList.add("wed");
-        dayList.add("thur");
-        dayList.add("fri");
-
-        adapter = new ArrayAdapter(WeatherDisplayActivity.this, android.R.layout.simple_list_item_1, dayList);
-        weatherView.setAdapter(adapter);
-
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
         //i should get x and y here
         //String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         WeatherAPIRequest(35.696, 51.401);
+        Log.i("weathermainactivity", "^^^^^^^^^^^^^^^^^^^^weathermainactivity pid: " + android.os.Process.myPid() +
+                " Tid: " + android.os.Process.myTid() +
+                " id: " + Thread.currentThread().getId());
     }
 
     //creating a string  request
@@ -62,36 +55,72 @@ public class WeatherDisplayActivity extends AppCompatActivity {
                 ","+ longitude.toString() +"&key=280430d7b3264e7fabd52834200604&days=7";
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null,  new Response.Listener<JSONObject>() {
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
                         processForecastObject(response);
-                        System.out.println(response.toString());
                     }
                 }, new Response.ErrorListener() {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        //TextView textView = findViewById(R.id.requestviewer);
-                        //textView.setText("not worked");
                     }
                 });
+        Log.i("weathermainactivity", "*****************weathermainactivity pid: " + android.os.Process.myPid() +
+                " Tid: " + android.os.Process.myTid() +
+                " id: " + Thread.currentThread().getId());
         queue.add(jsonObjectRequest);
     }
 
     private void processForecastObject(JSONObject response) {
-        System.out.println("in processing");
         String city = null;
+        String country = null;
+        String lastupdate= null;
+
         try {
+            //getting header information
             JSONObject location = response.getJSONObject("location");
+            city = location.getString("name");
+            country = location.getString("country");
+            JSONObject current = response.getJSONObject("current");
+            lastupdate = current.getString("last_updated");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        //TextView textView = findViewById(R.id.requestviewer);
-        //textView.setText(city);
-    }
+        TextView cityname = findViewById(R.id.cityname);
+        cityname.setText(city);
+        TextView countryname = findViewById(R.id.countryname);
+        countryname.setText(country);
+        TextView lastupdateview = findViewById(R.id.lastupdate);
+        lastupdateview.setText("lastupdate: "+lastupdate);
 
+        //processing the json array and retrieving important data
+        try{
+            JSONArray forecastday = response.getJSONObject("forecast").getJSONArray("forecastday");
+            ArrayList<DayWeather> daydata = new ArrayList();
+            for(int i  = 0; i < forecastday.length(); i++){
+                DayWeather dayWeather = new DayWeather();
+                dayWeather.setDate(forecastday.getJSONObject(i).getString("date"));
+                dayWeather.setMaxtempc(forecastday.getJSONObject(i).getJSONObject("day").getDouble("maxtemp_c"));
+                dayWeather.setMintempc(forecastday.getJSONObject(i).getJSONObject("day").getDouble("mintemp_c"));
+                dayWeather.setAvgtempc(forecastday.getJSONObject(i).getJSONObject("day").getDouble("avgtemp_c"));
+                dayWeather.setWeathertext(forecastday.getJSONObject(i).getJSONObject("day").getJSONObject("condition").getString("text"));
+                dayWeather.setPhotocode(forecastday.getJSONObject(i).getJSONObject("day").getJSONObject("condition").getInt("code"));
+                daydata.add(dayWeather);
+            }
+
+            weatherRecyclerView = findViewById(R.id.weatherlist);
+            weatherRecyclerView.setHasFixedSize(true);
+            wetherLayoutManager = new LinearLayoutManager(this);
+            weatherAdapter = new WeatherAdapter(this, daydata);
+            weatherRecyclerView.setLayoutManager(wetherLayoutManager);
+            weatherRecyclerView.setAdapter(weatherAdapter);
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
 
 
 }

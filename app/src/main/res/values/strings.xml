@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">HW1</string>
+    <string name="btn">Go To Next Page</string>
+    <string name="secret_key">280430d7b3264e7fabd52834200604</string>
+    <string name="days">7</string>
 </resources>

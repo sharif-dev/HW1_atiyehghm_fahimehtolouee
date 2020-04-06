@@ -17,6 +17,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
+import android.view.View;
+
+
 public class MainActivity extends AppCompatActivity {
     private EditText searchBox;
     private RecyclerView recyclerView;
@@ -74,5 +78,13 @@ public class MainActivity extends AppCompatActivity {
     private void getViewFromXML() {
         searchBox = findViewById(R.id.searchBox);
         recyclerView = findViewById(R.id.listItem);
+    }
+
+    //called when user selects a city
+    public void sendMessage(View view) {
+        Intent intent = new Intent(this, WeatherDisplayActivity.class);
+        //with putExtra i get x and y
+        //intent.putExtra(x, y, message);
+        startActivity(intent);
     }
 }

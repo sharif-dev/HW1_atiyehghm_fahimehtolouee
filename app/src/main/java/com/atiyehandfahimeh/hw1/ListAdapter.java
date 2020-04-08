@@ -9,16 +9,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 public class ListAdapter extends RecyclerView.Adapter {
-    private static final int TYPE_1 = 207;
-    private static final int TYPE_2 = 208;
+    private static final int TYPE_1 = 1;
+    private static final int TYPE_2 = 0;
 
     private Context context ;
-    private ArrayList<ListItem> data = new ArrayList<>();
+    private ArrayList<ListItem> data;
+    private OnItemClickListener mListener;
+
+    public interface OnItemClickListener{
+        void onItemClick(int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        mListener = listener;
+    }
+
     public ListAdapter(Context context , ArrayList<ListItem> data) {
         this.context = context;
         this.data = data;
@@ -42,21 +50,18 @@ public class ListAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (position % 2 == 0){
-            ItemListViewHolder holder1 = (ItemListViewHolder) holder;
-            holder1.textView.setText(data.get(position).getName());
-        }else {
-            ItemListViewHolder holder1 = (ItemListViewHolder) holder;
-            holder1.textView.setText(data.get(position).getName());
-        }
+        ListItem currentItem = data.get(position);
+        String itemName = currentItem.getName();
+        ItemListViewHolder holder1 = (ItemListViewHolder) holder;
+        holder1.textView.setText(itemName);
     }
 
     @Override
     public int getItemViewType(int position) {
         if (position % 2 == 0){
-            return TYPE_1;
-        }else {
             return TYPE_2;
+        }else {
+            return TYPE_1;
         }
     }
 
@@ -70,6 +75,18 @@ public class ListAdapter extends RecyclerView.Adapter {
         public ItemListViewHolder(@NonNull View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.txtTitle);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mListener != null){
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION){
+                            mListener.onItemClick(position);
+                        }
+                    }
+                }
+            });
         }
     }
 }

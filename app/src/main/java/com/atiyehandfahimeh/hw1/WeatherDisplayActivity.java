@@ -6,26 +6,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class WeatherDisplayActivity extends AppCompatActivity {
     private RecyclerView weatherRecyclerView;
@@ -42,36 +35,22 @@ public class WeatherDisplayActivity extends AppCompatActivity {
         Intent intent = getIntent();
         //i should get x and y here
         //String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
-        WeatherAPIRequest(35.696, 51.401);
+        Double latitude = 35.696;
+        Double longitude = 51.401;
+        Handler weatherHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                processForecastObject((JSONObject) msg.obj);
+            }
+        };
+        Thread apicallerThread = new Thread(new WeatherAPICallerRunnable(this, weatherHandler, latitude, longitude)); //I pass Runnable object in thread so that the code inside the run() method
+        //of Runnable object gets executed when I start my thread here. But the code executes in new thread
+        apicallerThread.start();
         Log.i("weathermainactivity", "^^^^^^^^^^^^^^^^^^^^weathermainactivity pid: " + android.os.Process.myPid() +
                 " Tid: " + android.os.Process.myTid() +
                 " id: " + Thread.currentThread().getId());
     }
 
-    //creating a string  request
-    private void WeatherAPIRequest(Double latitude, Double longitude) {
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "http://api.weatherapi.com/v1/forecast.json?q=" + latitude.toString() +
-                ","+ longitude.toString() +"&key=280430d7b3264e7fabd52834200604&days=7";
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        processForecastObject(response);
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                });
-        Log.i("weathermainactivity", "*****************weathermainactivity pid: " + android.os.Process.myPid() +
-                " Tid: " + android.os.Process.myTid() +
-                " id: " + Thread.currentThread().getId());
-        queue.add(jsonObjectRequest);
-    }
 
     private void processForecastObject(JSONObject response) {
         String city = null;

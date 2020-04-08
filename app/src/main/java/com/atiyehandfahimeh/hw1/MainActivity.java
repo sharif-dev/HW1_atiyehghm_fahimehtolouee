@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements ListAdapter.OnIte
 
     @Override
     public void onItemClick(int position) {
-        Intent showWeatherIntent = new Intent(this, ShowWeather.class);
+        Intent showWeatherIntent = new Intent(this, WeatherDisplayActivity.class);
         ListItem clickedItem = listItems.get(position);
 
         showWeatherIntent.putExtra(EXTRA_LONGITUDE, Double.toString(clickedItem.getCenterX()));

@@ -10,6 +10,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
@@ -24,6 +26,7 @@ public class WeatherDisplayActivity extends AppCompatActivity {
     private RecyclerView weatherRecyclerView;
     private RecyclerView.Adapter weatherAdapter;
     private RecyclerView.LayoutManager wetherLayoutManager;
+    private ProgressBar weatherProgressBar;
 
 
     @Override
@@ -37,6 +40,8 @@ public class WeatherDisplayActivity extends AppCompatActivity {
         //String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         Double latitude = intent.getDoubleExtra("latitude", 0);
         Double longitude = intent.getDoubleExtra("longitude", 0);
+        weatherProgressBar = findViewById(R.id.WeatherprogressBar);
+        weatherProgressBar.setVisibility(View.VISIBLE);
         Handler weatherHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
@@ -53,6 +58,7 @@ public class WeatherDisplayActivity extends AppCompatActivity {
 
 
     private void processForecastObject(JSONObject response) {
+        weatherProgressBar.setVisibility(View.INVISIBLE);
         String city = null;
         String country = null;
         String lastupdate= null;

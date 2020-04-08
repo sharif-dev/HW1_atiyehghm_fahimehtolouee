@@ -7,9 +7,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -17,7 +14,6 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -25,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class WeatherDisplayActivity extends AppCompatActivity {
     private RecyclerView weatherRecyclerView;
@@ -102,11 +97,11 @@ public class WeatherDisplayActivity extends AppCompatActivity {
             for(int i  = 0; i < forecastday.length(); i++){
                 DayWeather dayWeather = new DayWeather();
                 dayWeather.setDate(forecastday.getJSONObject(i).getString("date"));
-                dayWeather.setMaxtempc(forecastday.getJSONObject(i).getJSONObject("day").getDouble("maxtemp_c"));
-                dayWeather.setMintempc(forecastday.getJSONObject(i).getJSONObject("day").getDouble("mintemp_c"));
-                dayWeather.setAvgtempc(forecastday.getJSONObject(i).getJSONObject("day").getDouble("avgtemp_c"));
-                dayWeather.setWeathertext(forecastday.getJSONObject(i).getJSONObject("day").getJSONObject("condition").getString("text"));
-                dayWeather.setPhotocode(forecastday.getJSONObject(i).getJSONObject("day").getJSONObject("condition").getInt("code"));
+                dayWeather.setMaxTemp(forecastday.getJSONObject(i).getJSONObject("day").getDouble("maxtemp_c"));
+                dayWeather.setMinTemp(forecastday.getJSONObject(i).getJSONObject("day").getDouble("mintemp_c"));
+                dayWeather.setAvgTemp(forecastday.getJSONObject(i).getJSONObject("day").getDouble("avgtemp_c"));
+                dayWeather.setWeather(forecastday.getJSONObject(i).getJSONObject("day").getJSONObject("condition").getString("text"));
+                dayWeather.setPhotoCode(forecastday.getJSONObject(i).getJSONObject("day").getJSONObject("condition").getInt("code"));
                 daydata.add(dayWeather);
             }
 

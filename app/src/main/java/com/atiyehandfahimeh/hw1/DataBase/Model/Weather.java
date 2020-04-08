@@ -1,12 +1,35 @@
-package com.atiyehandfahimeh.hw1;
+package com.atiyehandfahimeh.hw1.DataBase.Model;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-public class DayWeather {
+import java.io.Serializable;
+
+@Entity
+public class Weather implements Serializable{
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
+    @ColumnInfo(name = "date")
     private String date;
+    @ColumnInfo(name = "weather")
     private String weather;
+    @ColumnInfo(name = "photo_code")
     private int photoCode;
+    @ColumnInfo(name = "max_temp")
     private Double maxTemp;
+    @ColumnInfo(name = "min_temp")
     private Double minTemp;
+    @ColumnInfo(name = "avg_temp")
     private Double avgTemp;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getDate() {
         return date;

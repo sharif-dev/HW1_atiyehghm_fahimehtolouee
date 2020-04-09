@@ -139,7 +139,7 @@ public class WeatherDisplayActivity extends AppCompatActivity {
         };
     }
     private void getViewFromXML(){
-        weatherProgressBar = findViewById(R.id.WeatherprogressBar);
+        weatherProgressBar = findViewById(R.id.WeatherProgressBar);
         cityName = findViewById(R.id.cityname);
         countryName = findViewById(R.id.countryname);
         lastUpdate = findViewById(R.id.lastupdate);
@@ -150,8 +150,8 @@ public class WeatherDisplayActivity extends AppCompatActivity {
         weatherProgressBar.setVisibility(View.INVISIBLE);
 
         cityName.setText(cityData.getCityInfo().getName());
-        countryName.setText(cityData.getCityInfo().getCountry());
-        lastUpdate.setText(R.string.last_update + cityData.getCityInfo().getLastUpdate());
+        countryName.setText("Area:" + cityData.getCityInfo().getCountry());
+        lastUpdate.setText("Last-Update: " + cityData.getCityInfo().getLastUpdate());
 
         weatherRecyclerView.setHasFixedSize(true);
         weatherLayoutManager = new LinearLayoutManager(WeatherDisplayActivity.this);

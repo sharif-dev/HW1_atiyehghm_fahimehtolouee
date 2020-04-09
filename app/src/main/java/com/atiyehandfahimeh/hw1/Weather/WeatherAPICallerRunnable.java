@@ -27,7 +27,7 @@ public class WeatherAPICallerRunnable implements Runnable {
     @Override
     public void run() {
         HashMap<String, String> queries = new HashMap<String, String>();
-        queries.put("q", longitude.toString() + "," + latitude.toString() );
+        queries.put("q", latitude.toString() + "," + longitude.toString() );
         queries.put("key", accessToken);
         queries.put("days", days );
         Request request = new Request(baseUrl, queries);

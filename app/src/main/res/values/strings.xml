@@ -1,4 +1,19 @@
 <resources>
     <string name="app_name">HW1</string>
     <string name="last_update">Last-Update: </string>
+    <string name="internet_connection">
+        There is a problem in your connection!
+    </string>
+    <string name="authentication">
+        API key is invalid!
+    </string>
+    <string name="server">
+        Server can not response!
+    </string>
+    <string name="network">
+        Network error occurred while performing the request!
+    </string>
+    <string name="parse">
+        Server response could not be parsed!
+    </string>
 </resources>

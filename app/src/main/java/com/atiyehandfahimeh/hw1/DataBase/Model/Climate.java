@@ -1,25 +1,54 @@
-package com.atiyehandfahimeh.hw1.Models;
+package com.atiyehandfahimeh.hw1.DataBase.Model;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.PrimaryKey;
 
-public class DayWeather {
+import static androidx.room.ForeignKey.CASCADE;
 
+@Entity
+public class Climate {
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    private int id;
+    @ColumnInfo(name = "date")
     private String date;
+    @ColumnInfo(name = "weather")
     private String weather;
+    @ColumnInfo(name = "photo_code")
     private int photoCode;
+    @ColumnInfo(name = "max_temp")
     private Double maxTemp;
+    @ColumnInfo(name = "min_temp")
     private Double minTemp;
+    @ColumnInfo(name = "avg_temp")
     private Double avgTemp;
 
-    public DayWeather(String date, String weather, int photoCode, Double maxTemp, Double minTemp, Double avgTemp) {
+    public Climate(String date, String weather, int photoCode, Double maxTemp, Double minTemp, Double avgTemp) {
         this.date = date;
         this.weather = weather;
         this.photoCode = photoCode;
         this.maxTemp = maxTemp;
         this.minTemp = minTemp;
         this.avgTemp = avgTemp;
+//        this.cityId = cityId;
     }
-    public DayWeather(){
 
+//    public int getCityId() {
+//        return cityId;
+//    }
+//
+//    public void setCityId(int cityId) {
+//        this.cityId = cityId;
+//    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getDate() {

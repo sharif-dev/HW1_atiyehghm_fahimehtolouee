@@ -1,132 +1,70 @@
 package com.atiyehandfahimeh.hw1;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.atiyehandfahimeh.hw1.Network.InternetConnection;
+import com.atiyehandfahimeh.hw1.Place.SearchPlaceActivity;
+import com.atiyehandfahimeh.hw1.Weather.WeatherDisplayActivity;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-
-public class MainActivity extends AppCompatActivity implements ListAdapter.OnItemClickListener {
-    private static final String EXTRA_LONGITUDE = "longitude";
-    private static final String EXTRA_LATITUDE = "latitude";
-    private EditText searchBox;
-    private ImageView searchButton;
-    private ProgressBar progressBar;
-    private RecyclerView recyclerView;
-    private ArrayList<ListItem> listItems;
-    private ListAdapter listAdapter;
-    private Handler placehandler;
+public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getViewFromXML();
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                APICall(searchBox.getText().toString());
-            }
-        });
-        searchBox.setOnEditorActionListener(
-                new EditText.OnEditorActionListener() {
-                    @Override
-                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                        if (actionId == EditorInfo.IME_ACTION_SEARCH
-                                || actionId == EditorInfo.IME_ACTION_DONE
-                                || event.getAction() == KeyEvent.ACTION_DOWN
-                                && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                            APICall(searchBox.getText().toString());
-                            return true;
-                        }
-                        return false;
-                    }
-                }
-        );
-        controller();
-    }
+//        final Class<? extends Activity> activityClass;
+//        InternetConnection connection = new InternetConnection(this);
+//        if(connection.isConnected()){
+//            Log.i("__Activity__", "First");
+//            activityClass = SearchPlaceActivity.class;
+//        } else{
+//            Log.i("__Activity__", "Second");
+//            activityClass = WeatherDisplayActivity.class;
+//        }
+//        Intent newActivity = new Intent(getApplicationContext(), activityClass);
+//        startActivity(newActivity);
 
-    private void APICall(String text) {
-        progressBar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
-        placehandler = new Handler(Looper.getMainLooper()) {
-
+        Handler checkNetworkHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.arg1 == 1) {
-                    progressBar.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                    listItems = (ArrayList<ListItem>) msg.obj;
-                    listAdapter.setData(listItems);
-                    listAdapter.notifyDataSetChanged();
-                } else if (msg.arg1 == 2) {
-                    VolleyError error = (VolleyError) msg.obj;
-                    try {
-                        String responseBody = new String(error.networkResponse.data, "utf-8");
-                        JSONObject data = new JSONObject(responseBody);
-                        String message = data.optString("message");
-                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                    } catch (JSONException | UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+                Intent newActivity = new Intent(getApplicationContext(), (Class<? extends Activity>) msg.obj);
+                startActivity(newActivity);
             }
         };
-        Thread placeThread = new Thread(new PlaceAPICallerRunnable(text, this, placehandler ));
-        placeThread.start();
-        Log.i("mainactivity", "^^^^^^^^^^^^^^^^^^^^mainactivity pid: " + android.os.Process.myPid() +
-                " Tid: " + android.os.Process.myTid() +
-                " id: " + Thread.currentThread().getId());
+        Thread thread = new Thread(new CheckNetworkRunnable(checkNetworkHandler, this));
+        thread.start();
     }
 
-    private void controller() {
-        listAdapter = new ListAdapter(this , new ArrayList<ListItem>());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(listAdapter);
-        listAdapter.setOnItemClickListener(MainActivity.this);
-    }
+}
 
-    private void getViewFromXML() {
-        searchBox = findViewById(R.id.searchBox);
-        searchButton = findViewById(R.id.searchButton);
-        progressBar = findViewById(R.id.progressBar);
-        recyclerView = findViewById(R.id.listItem);
+class CheckNetworkRunnable implements Runnable{
+    private Handler handler;
+    private Context context;
+    public CheckNetworkRunnable(Handler handler, Context context) {
+        this.handler = handler;
+        this.context = context;
     }
 
     @Override
-    public void onItemClick(int position) {
-        Intent showWeatherIntent = new Intent(this, WeatherDisplayActivity.class);
-        ListItem clickedItem = listItems.get(position);
-
-        showWeatherIntent.putExtra(EXTRA_LONGITUDE, clickedItem.getCenterX());
-        showWeatherIntent.putExtra(EXTRA_LATITUDE, clickedItem.getCenterY());
-        startActivity(showWeatherIntent);
+    public void run() {
+        Message mUi = Message.obtain();
+        InternetConnection connection = new InternetConnection(context);
+        Class<? extends Activity> firstClass = SearchPlaceActivity.class;
+        Class<? extends Activity> secondClass = WeatherDisplayActivity.class;
+        if (connection.isConnected()){
+            mUi.obj = firstClass;
+        }
+        else {
+            mUi.obj = secondClass;
+        }
+        handler.sendMessage(mUi);
     }
 }

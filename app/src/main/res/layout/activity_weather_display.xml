@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WeatherDisplayActivity">
+    tools:context=".Weather.WeatherDisplayActivity">
 
     <ProgressBar
         android:id="@+id/WeatherprogressBar"

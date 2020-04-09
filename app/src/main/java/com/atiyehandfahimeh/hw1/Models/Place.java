@@ -1,12 +1,12 @@
-package com.atiyehandfahimeh.hw1;
+package com.atiyehandfahimeh.hw1.Models;
 
-public class ListItem {
+public class Place {
     private String id ;
     private  String name ;
     private double centerX;
     private double centerY;
 
-    public ListItem(String id, String name, double centerX, double centerY) {
+    public Place(String id, String name, double centerX, double centerY) {
         this.id = id;
         this.name = name;
         this.centerX = centerX;

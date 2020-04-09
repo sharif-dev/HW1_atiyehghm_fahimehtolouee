@@ -4,7 +4,8 @@ import androidx.arch.core.util.Function;
 
 import com.android.volley.VolleyError;
 import com.atiyehandfahimeh.hw1.Constants.WeatherDataKeys;
-import com.atiyehandfahimeh.hw1.Models.DayWeather;
+import com.atiyehandfahimeh.hw1.Models.CityInfo;
+import com.atiyehandfahimeh.hw1.Models.DayClimate;
 import com.atiyehandfahimeh.hw1.Network.HandleError;
 import com.atiyehandfahimeh.hw1.Network.ParseResponse;
 
@@ -15,43 +16,41 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class WeatherParseResponse implements ParseResponse {
-    private String city;
-    private String country;
-    private String lastUpdate;
-    private ArrayList<DayWeather> dayData;
     private String errorMessage;
+    private CityInfo cityInfo;
     @Override
     public void parseSuccessResponse(JSONObject response) {
         try {
 
             JSONObject location = response.getJSONObject(WeatherDataKeys.getLOCATION());
             JSONObject current = response.getJSONObject(WeatherDataKeys.getCURRENT());
-            city = location.getString(WeatherDataKeys.getNAME());
-            country = location.getString(WeatherDataKeys.getCOUNTRY());
-            lastUpdate = current.getString(WeatherDataKeys.getLastUpdated());
+            String city = location.getString(WeatherDataKeys.getNAME());
+            String country = location.getString(WeatherDataKeys.getCOUNTRY());
+            String lastUpdate = current.getString(WeatherDataKeys.getLastUpdated());
 
             JSONArray forecastDay = response.getJSONObject(WeatherDataKeys.getFORECAST())
                     .getJSONArray(WeatherDataKeys.getForecastDay());
 
-            dayData = new ArrayList<DayWeather>();
+            ArrayList<DayClimate> dayData = new ArrayList<DayClimate>();
             for(int i  = 0; i < forecastDay.length(); i++){
-                DayWeather dayWeather = new DayWeather();
                 JSONObject forecastCurrent = forecastDay.getJSONObject(i);
 
-                dayWeather.setDate(forecastCurrent.getString(WeatherDataKeys.getDATE()));
+                String data = forecastCurrent.getString(WeatherDataKeys.getDATE());
 
                 JSONObject forecastWeatherInfoTmp = forecastCurrent.getJSONObject(WeatherDataKeys.getDAY());
 
-                dayWeather.setMaxTemp(forecastWeatherInfoTmp.getDouble(WeatherDataKeys.getMaxTemp()));
-                dayWeather.setMinTemp(forecastWeatherInfoTmp.getDouble(WeatherDataKeys.getMinTemp()));
-                dayWeather.setAvgTemp(forecastWeatherInfoTmp.getDouble(WeatherDataKeys.getAvgTemp()));
+                Double maxTemp = forecastWeatherInfoTmp.getDouble(WeatherDataKeys.getMaxTemp());
+                Double minTemp = forecastWeatherInfoTmp.getDouble(WeatherDataKeys.getMinTemp());
+                Double avgTemp = forecastWeatherInfoTmp.getDouble(WeatherDataKeys.getAvgTemp());
 
                 JSONObject forecastAirInfoTmp = forecastWeatherInfoTmp.getJSONObject(WeatherDataKeys.getCONDITION());
 
-                dayWeather.setWeather(forecastAirInfoTmp.getString(WeatherDataKeys.getTEXT()));
-                dayWeather.setPhotoCode(forecastAirInfoTmp.getInt(WeatherDataKeys.getCODE()));
-                dayData.add(dayWeather);
+                String weatherText = forecastAirInfoTmp.getString(WeatherDataKeys.getTEXT());
+                int photoCode = forecastAirInfoTmp.getInt(WeatherDataKeys.getCODE());
+                DayClimate dayClimate = new DayClimate(data, weatherText, photoCode, maxTemp, minTemp, avgTemp);
+                dayData.add(dayClimate);
             }
+            cityInfo = new CityInfo(city, country, lastUpdate, dayData);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -65,21 +64,10 @@ public class WeatherParseResponse implements ParseResponse {
         errorMessage = handleError.handleError(parseError);
     }
 
-    public String getCity() {
-        return city;
+    public CityInfo getCityInfo() {
+        return cityInfo;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public String getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public ArrayList<DayWeather> getDayData() {
-        return dayData;
-    }
 
     public String getErrorMessage() {
         return errorMessage;

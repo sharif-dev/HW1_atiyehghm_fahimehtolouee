@@ -10,14 +10,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.atiyehandfahimeh.hw1.Models.DayWeather;
+import com.atiyehandfahimeh.hw1.Models.DayClimate;
 import com.atiyehandfahimeh.hw1.R;
 
 import java.util.ArrayList;
 
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherViewHolder> {
-    private ArrayList<DayWeather> daydata;
+    private ArrayList<DayClimate> daydata;
     private Context context;
 
     public static class WeatherViewHolder extends RecyclerView.ViewHolder{
@@ -39,7 +39,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherV
         }
     }
 
-    public WeatherAdapter(Context context1, ArrayList<DayWeather> dayList){
+    public WeatherAdapter(Context context1, ArrayList<DayClimate> dayList){
         daydata = dayList;
         context = context1;
     }
@@ -55,7 +55,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherV
 
     @Override
     public void onBindViewHolder(@NonNull WeatherViewHolder holder, int position) {
-        DayWeather currentday = daydata.get(position);
+        DayClimate currentday = daydata.get(position);
 
         holder.title.setText(currentday.getWeather());
         holder.date.setText(currentday.getDate());

@@ -19,14 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.VolleyError;
-import com.atiyehandfahimeh.hw1.Weather.WeatherDisplayActivity;
 import com.atiyehandfahimeh.hw1.Models.Place;
+import com.atiyehandfahimeh.hw1.Network.State;
 import com.atiyehandfahimeh.hw1.R;
+import com.atiyehandfahimeh.hw1.Weather.WeatherDisplayActivity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class SearchPlaceActivity extends AppCompatActivity implements PlaceAdapter.OnItemClickListener {
@@ -36,45 +35,36 @@ public class SearchPlaceActivity extends AppCompatActivity implements PlaceAdapt
     private ImageView searchButton;
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
-    private ArrayList<Place> places;
+    private ArrayList<Place> placesArr;
     private PlaceAdapter placeAdapter;
     private Handler placeHandler;
+    private PlaceParseResponse placeData = new PlaceParseResponse();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_search_place);
         getViewFromXML();
         controller();
     }
 
-    private void APICall(String text) {
+    private void handleSearch(String text) {
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
         placeHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.arg1 == 1) {
-                    progressBar.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                    places = (ArrayList<Place>) msg.obj;
-                    placeAdapter.setData(places);
-                    placeAdapter.notifyDataSetChanged();
-                } else if (msg.arg1 == 2) {
-                    VolleyError error = (VolleyError) msg.obj;
-                    try {
-                        String responseBody = new String(error.networkResponse.data, "utf-8");
-                        JSONObject data = new JSONObject(responseBody);
-                        String message = data.optString("message");
-                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                    } catch (JSONException | UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+                if (msg.arg1 == State.SUCCESS.getValue()) {
+                    placeData.parseSuccessResponse((JSONObject) msg.obj);
+                    mainController();
+                } else if (msg.arg1 == State.FAIL.getValue()) {
+                    placeData.parseFailureResponse((VolleyError) msg.obj);
+                    secondController();
                 }
 
             }
         };
-        Thread thread = new Thread(new PlaceAPICallerRunnable(text, this, placeHandler));
+        Thread thread = new Thread(new PlaceAPICallerRunnable(this, placeHandler, text));
         thread.start();
 //        Log.i("mainactivity", "^^^^^^^^^^^^^^^^^^^^mainactivity pid: " + android.os.Process.myPid() +
 //                " Tid: " + android.os.Process.myTid() +
@@ -85,7 +75,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements PlaceAdapt
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                APICall(searchBox.getText().toString());
+                handleSearch(searchBox.getText().toString());
             }
         });
         searchBox.setOnEditorActionListener(
@@ -96,19 +86,31 @@ public class SearchPlaceActivity extends AppCompatActivity implements PlaceAdapt
                                 || actionId == EditorInfo.IME_ACTION_DONE
                                 || event.getAction() == KeyEvent.ACTION_DOWN
                                 && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                            APICall(searchBox.getText().toString());
+                            handleSearch(searchBox.getText().toString());
                             return true;
                         }
                         return false;
                     }
                 }
         );
-        placeAdapter = new PlaceAdapter(this , new ArrayList<Place>());
+    }
+
+    private void mainController(){
+        progressBar.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        placesArr = placeData.getPlaceList();
+        placeAdapter = new PlaceAdapter(this , placesArr);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(placeAdapter);
         placeAdapter.setOnItemClickListener(SearchPlaceActivity.this);
+        placeAdapter.notifyDataSetChanged();
     }
-
+    private void secondController(){
+        progressBar.setVisibility(View.GONE);
+        Toast.makeText(
+                getApplicationContext(), placeData.getErrorMessage(), Toast.LENGTH_LONG
+        ).show();
+    }
     private void getViewFromXML() {
         searchBox = findViewById(R.id.searchBox);
         searchButton = findViewById(R.id.searchButton);
@@ -119,7 +121,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements PlaceAdapt
     @Override
     public void onItemClick(int position) {
         Intent showWeatherIntent = new Intent(this, WeatherDisplayActivity.class);
-        Place clickedItem = places.get(position);
+        Place clickedItem = placesArr.get(position);
 
         showWeatherIntent.putExtra(EXTRA_LONGITUDE, clickedItem.getCenterX());
         showWeatherIntent.putExtra(EXTRA_LATITUDE, clickedItem.getCenterY());

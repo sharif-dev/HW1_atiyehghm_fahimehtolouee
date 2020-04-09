@@ -5,6 +5,7 @@ public final class PlaceDataKeys {
     private static final String FEATURES = "features";
     private static final String PLACE_NAME = "place_name";
     private static final String CENTER = "center";
+    private static final String MESSAGE = "message";
 
     public static String getID(){
         return ID;
@@ -19,5 +20,9 @@ public final class PlaceDataKeys {
 
     public static String getCENTER() {
         return CENTER;
+    }
+
+    public static String getMESSAGE() {
+        return MESSAGE;
     }
 }

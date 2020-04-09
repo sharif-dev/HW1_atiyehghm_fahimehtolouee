@@ -61,7 +61,7 @@ public class WeatherParseResponse implements ParseResponse {
     public void parseFailureResponse(VolleyError error) {
         HandleError handleError = new HandleError(error);
         Function<JSONObject, String> parseError = data->
-                data.optJSONObject("error").optString("message");
+                data.optJSONObject(WeatherDataKeys.getERROR()).optString(WeatherDataKeys.getMESSAGE());
         errorMessage = handleError.handleError(parseError);
     }
 

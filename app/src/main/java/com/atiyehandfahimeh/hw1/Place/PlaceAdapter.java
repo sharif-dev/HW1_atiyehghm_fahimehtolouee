@@ -43,10 +43,10 @@ public class PlaceAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_1){
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.place_item, parent, false);
             return new ItemListViewHolder(view);
         }else {
-            View view = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.place_item, parent, false);
             return new ItemListViewHolder(view);
         }
     }

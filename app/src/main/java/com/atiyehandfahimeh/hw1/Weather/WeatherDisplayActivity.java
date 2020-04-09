@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.VolleyError;
 import com.atiyehandfahimeh.hw1.DataBase.DataBaseClient;
+import com.atiyehandfahimeh.hw1.DataBase.Weathers;
 import com.atiyehandfahimeh.hw1.Models.DayWeather;
 import com.atiyehandfahimeh.hw1.Network.InternetConnection;
 import com.atiyehandfahimeh.hw1.Network.State;
@@ -42,6 +43,7 @@ public class WeatherDisplayActivity extends AppCompatActivity {
     private TextView lastUpdate;
     private Double longitude;
     private Double latitude;
+    ArrayList <DayWeather> dayWeathers;
     private WeatherParseResponse weatherData = new WeatherParseResponse();
 
 
@@ -56,7 +58,13 @@ public class WeatherDisplayActivity extends AppCompatActivity {
 
 //        Thread thread = new Thread(new CheckNetworkRunnable(checkNetworkHandler, this));
 //        thread.start();
-        fetchFromServer();
+        InternetConnection connection = new InternetConnection(this);
+        if(connection.isConnected()){
+            fetchFromServer();
+        }
+        else {
+            fetchFromDataBase();
+        }
 //        checkNetwork();
 //        Log.i("weathermainactivity", "^^^^^^^^^^^^^^^^^^^^weathermainactivity pid: " + android.os.Process.myPid() +
 //                " Tid: " + android.os.Process.myTid() +
@@ -84,28 +92,34 @@ public class WeatherDisplayActivity extends AppCompatActivity {
         apiCallerThread.start();
     }
 
-//    private void fetchFromDataBase(){
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                List<DayWeather> daysWeatherDataBaseList = DataBaseClient.getInstance(WeatherDisplayActivity.this)
-//                        .getAppDatabase().weatherDao().getAll();
-//                ArrayList <DayWeather> dayWeathers = new ArrayList<>();
-////                for (DayWeather dayWeather: daysWeatherDataBaseList) {
-////                    dayWeathers.add(dayWeather);
-////                }
-//                // refreshing recycler view
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        weatherAdapter.notifyDataSetChanged();
-//                    }
-//                });
-//            }
-//        });
-//        thread.start();
-//    }
+    private void fetchFromDataBase(){
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                List<Weathers> weatherDataBaseList = DataBaseClient.getInstance(WeatherDisplayActivity.this)
+                        .getAppDatabase().weatherDao().getAll();
+                dayWeathers = new ArrayList<>();
+                for (Weathers weather: weatherDataBaseList) {
+                    Log.i("VVVVVVV", weather.getWeather());
+                    DayWeather dayWeather = new DayWeather(weather.getDate(), weather.getWeather(), weather.getPhotoCode(),
+                            weather.getMaxTemp(), weather.getMinTemp(), weather.getAvgTemp());
+                    dayWeathers.add(dayWeather);
+                }
+                // refreshing recycler view
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        weatherAdapter = new WeatherAdapter(WeatherDisplayActivity.this, dayWeathers);
+                        weatherAdapter.notifyDataSetChanged();
+                        weatherRecyclerView.setLayoutManager(weatherLayoutManager);
+                        weatherRecyclerView.setAdapter(weatherAdapter);
+                    }
+                });
+            }
+        });
+        thread.start();
+    }
 
     private Handler handler(){
         return new Handler(Looper.getMainLooper()) {
@@ -167,8 +181,15 @@ public class WeatherDisplayActivity extends AppCompatActivity {
 
                 for (int i = 0; i < weatherData.getDayData().size(); i++) {
                     DayWeather dayWeather = weatherData.getDayData().get(i) ;
+                    Weathers weathers = new Weathers();
+                    weathers.setDate(dayWeather.getDate());
+                    weathers.setWeather(dayWeather.getWeather());
+                    weathers.setMaxTemp(dayWeather.getMaxTemp());
+                    weathers.setMinTemp(dayWeather.getMinTemp());
+                    weathers.setAvgTemp(dayWeather.getAvgTemp());
+                    weathers.setPhotoCode(dayWeather.getPhotoCode());
                     DataBaseClient.getInstance(getApplicationContext()).getAppDatabase().
-                            weatherDao().insert(dayWeather);
+                            weatherDao().insert(weathers);
                 }
 
                 return null;

@@ -4,16 +4,17 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.atiyehandfahimeh.hw1.Models.DayWeather;
+
+import com.atiyehandfahimeh.hw1.DataBase.Weathers;
 
 import java.util.List;
 
 @Dao
 public interface WeatherDao {
-    @Query("SELECT * FROM dayweather")
-    List<DayWeather> getAll();
+    @Query("SELECT * FROM Weathers")
+    List<Weathers> getAll();
 
     @Insert
-    void insert(DayWeather dayWeather);
+    void insert(Weathers weatherEntity);
 
 }

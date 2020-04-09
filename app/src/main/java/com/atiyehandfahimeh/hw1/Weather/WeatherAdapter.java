@@ -1,4 +1,4 @@
-package com.atiyehandfahimeh.hw1;
+package com.atiyehandfahimeh.hw1.Weather;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.atiyehandfahimeh.hw1.Models.DayWeather;
+import com.atiyehandfahimeh.hw1.R;
 
 import java.util.ArrayList;
 

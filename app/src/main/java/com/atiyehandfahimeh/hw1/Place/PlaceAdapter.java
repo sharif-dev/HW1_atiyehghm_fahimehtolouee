@@ -1,4 +1,4 @@
-package com.atiyehandfahimeh.hw1;
+package com.atiyehandfahimeh.hw1.Place;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,14 +9,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.atiyehandfahimeh.hw1.Models.Place;
+import com.atiyehandfahimeh.hw1.R;
+
 import java.util.ArrayList;
 
-public class ListAdapter extends RecyclerView.Adapter {
+public class PlaceAdapter extends RecyclerView.Adapter {
     private static final int TYPE_1 = 1;
     private static final int TYPE_2 = 0;
 
     private Context context ;
-    private ArrayList<ListItem> data;
+    private ArrayList<Place> data;
     private OnItemClickListener mListener;
 
     public interface OnItemClickListener{
@@ -27,12 +30,12 @@ public class ListAdapter extends RecyclerView.Adapter {
         mListener = listener;
     }
 
-    public ListAdapter(Context context , ArrayList<ListItem> data) {
+    public PlaceAdapter(Context context , ArrayList<Place> data) {
         this.context = context;
         this.data = data;
     }
 
-    public void setData(ArrayList<ListItem> data) {
+    public void setData(ArrayList<Place> data) {
         this.data = data;
     }
 
@@ -50,7 +53,7 @@ public class ListAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ListItem currentItem = data.get(position);
+        Place currentItem = data.get(position);
         String itemName = currentItem.getName();
         ItemListViewHolder holder1 = (ItemListViewHolder) holder;
         holder1.textView.setText(itemName);

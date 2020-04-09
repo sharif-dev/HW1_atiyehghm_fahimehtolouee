@@ -1,11 +1,10 @@
-package com.atiyehandfahimeh.hw1;
+package com.atiyehandfahimeh.hw1.Place;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -20,10 +19,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.VolleyError;
-import com.atiyehandfahimeh.hw1.Place.PlaceAPICallerRunnable;
 import com.atiyehandfahimeh.hw1.Weather.WeatherDisplayActivity;
-import com.atiyehandfahimeh.hw1.Place.PlaceAdapter;
 import com.atiyehandfahimeh.hw1.Models.Place;
+import com.atiyehandfahimeh.hw1.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +29,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements PlaceAdapter.OnItemClickListener {
+public class SearchPlaceActivity extends AppCompatActivity implements PlaceAdapter.OnItemClickListener {
     private static final String EXTRA_LONGITUDE = "longitude";
     private static final String EXTRA_LATITUDE = "latitude";
     private EditText searchBox;
@@ -40,13 +38,50 @@ public class MainActivity extends AppCompatActivity implements PlaceAdapter.OnIt
     private RecyclerView recyclerView;
     private ArrayList<Place> places;
     private PlaceAdapter placeAdapter;
-    private Handler placehandler;
+    private Handler placeHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getViewFromXML();
+        controller();
+    }
+
+    private void APICall(String text) {
+        progressBar.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+        placeHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.arg1 == 1) {
+                    progressBar.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    places = (ArrayList<Place>) msg.obj;
+                    placeAdapter.setData(places);
+                    placeAdapter.notifyDataSetChanged();
+                } else if (msg.arg1 == 2) {
+                    VolleyError error = (VolleyError) msg.obj;
+                    try {
+                        String responseBody = new String(error.networkResponse.data, "utf-8");
+                        JSONObject data = new JSONObject(responseBody);
+                        String message = data.optString("message");
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    } catch (JSONException | UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        };
+        Thread thread = new Thread(new PlaceAPICallerRunnable(text, this, placeHandler));
+        thread.start();
+//        Log.i("mainactivity", "^^^^^^^^^^^^^^^^^^^^mainactivity pid: " + android.os.Process.myPid() +
+//                " Tid: " + android.os.Process.myTid() +
+//                " id: " + Thread.currentThread().getId());
+    }
+
+    private void controller() {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,50 +103,10 @@ public class MainActivity extends AppCompatActivity implements PlaceAdapter.OnIt
                     }
                 }
         );
-        controller();
-    }
-
-    private void APICall(String text) {
-        progressBar.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
-        placehandler = new Handler(Looper.getMainLooper()) {
-
-            @Override
-            public void handleMessage(Message msg) {
-                if (msg.arg1 == 1) {
-                    progressBar.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                    places = (ArrayList<Place>) msg.obj;
-                    placeAdapter.setData(places);
-                    placeAdapter.notifyDataSetChanged();
-                } else if (msg.arg1 == 2) {
-                    progressBar.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.VISIBLE);
-                    VolleyError error = (VolleyError) msg.obj;
-                    try {
-                        String responseBody = new String(error.networkResponse.data, "utf-8");
-                        JSONObject data = new JSONObject(responseBody);
-                        String message = data.optString("message");
-                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                    } catch (JSONException | UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        };
-        Thread placeThread = new Thread(new PlaceAPICallerRunnable(text, this, placehandler ));
-        placeThread.start();
-        Log.i("mainactivity", "^^^^^^^^^^^^^^^^^^^^mainactivity pid: " + android.os.Process.myPid() +
-                " Tid: " + android.os.Process.myTid() +
-                " id: " + Thread.currentThread().getId());
-    }
-
-    private void controller() {
         placeAdapter = new PlaceAdapter(this , new ArrayList<Place>());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(placeAdapter);
-        placeAdapter.setOnItemClickListener(MainActivity.this);
+        placeAdapter.setOnItemClickListener(SearchPlaceActivity.this);
     }
 
     private void getViewFromXML() {

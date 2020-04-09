@@ -1,4 +1,4 @@
-package com.atiyehandfahimeh.hw1;
+package com.atiyehandfahimeh.hw1.Models;
 
 public class DayWeather {
     private String date;
